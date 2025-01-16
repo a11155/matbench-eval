@@ -8,7 +8,20 @@ import numpy as np
 import pandas as pd
 from pymatviz.enums import Key
 from sklearn.metrics import r2_score
+import os
 
+import sys
+project_root = "/data/andrii/matbench-discovery"
+sys.path.insert(0, project_root)
+
+# Debug prints
+print("Python path:")
+for path in sys.path:
+    print(f"- {path}")
+
+print("\nTrying to find matbench_discovery:")
+import matbench_discovery
+print(f"Found at: {matbench_discovery.__file__}")
 from matbench_discovery import STABILITY_THRESHOLD
 from matbench_discovery.data import Model, df_wbm, round_trip_yaml
 from matbench_discovery.enums import MbdKey, TestSubset
@@ -196,5 +209,11 @@ def write_discovery_metrics_to_yaml(
     model_metadata.setdefault("metrics", {})["discovery"] = discovery_metrics
 
     # Write back to file
-    with open(model.yaml_path, mode="w") as file:
-        round_trip_yaml.dump(model_metadata, file)
+    print(model_metadata)
+    print()
+    print()
+    #try:
+    #    with open(model.yaml_path, mode="w") as file:
+    #        round_trip_yaml.dump(model_metadata, file)
+    #finally:
+    #    print("done")

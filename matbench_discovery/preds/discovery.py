@@ -2,6 +2,10 @@
 
 import pandas as pd
 from pymatviz.enums import Key
+import sys
+
+project_root = "/data/andrii/matbench-discovery"
+sys.path.insert(0, project_root)
 
 from matbench_discovery import STABILITY_THRESHOLD
 from matbench_discovery.data import Model, df_wbm, load_df_wbm_with_preds

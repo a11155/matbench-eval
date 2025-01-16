@@ -335,10 +335,10 @@ class DataFiles(Files):
         "wbm/2023-12-13-wbm-summary.csv.gz",
         "https://figshare.com/ndownloader/files/44225498",
     )
-    alignn_checkpoint = (
-        "2023-06-02-pbenner-best-alignn-model.pth.zip",
-        "https://figshare.com/ndownloader/files/41233560",
-    )
+    #alignn_checkpoint = (
+    #    "2023-06-02-pbenner-best-alignn-model.pth.zip",
+    #    "https://figshare.com/ndownloader/files/41233560",
+    #)
     mp_trj = (
         "mp/2022-09-16-mp-trj.json",
         "https://figshare.com/ndownloader/files/41619375",
@@ -380,49 +380,52 @@ class Model(Files, base_dir=f"{ROOT}/models"):
     See https://janosh.github.io/matbench-discovery/contribute for data descriptions.
     """
 
-    alignn = "alignn/alignn.yml", None, "ALIGNN"
+    #alignn = "alignn/alignn.yml", None, "ALIGNN"
     # alignn_pretrained = "alignn/alignn.yml", None, "ALIGNN Pretrained"
     # alignn_ff = "alignn/alignn-ff.yml", None, "ALIGNN FF"
 
     # BOWSR optimizer coupled with original megnet
-    bowsr_megnet = "bowsr/bowsr.yml", None, "BOWSR"
+    #bowsr_megnet = "bowsr/bowsr.yml", None, "BOWSR"
 
     # default CHGNet model from publication with 400,438 params
-    chgnet = "chgnet/chgnet.yml", None, "CHGNet"
+    # chgnet = "chgnet/chgnet.yml", None, "CHGNet"
     # chgnet_no_relax = None, "CHGNet No Relax"
 
     # CGCNN 10-member ensemble
-    cgcnn = "cgcnn/cgcnn.yml", None, "CGCNN"
+    #cgcnn = "cgcnn/cgcnn.yml", None, "CGCNN"
 
     # CGCNN 10-member ensemble with 5-fold training set perturbations
-    cgcnn_p = "cgcnn/cgcnn+p.yml", None, "CGCNN+P"
+    #cgcnn_p = "cgcnn/cgcnn+p.yml", None, "CGCNN+P"
 
     # original M3GNet straight from publication, not re-trained
-    m3gnet = "m3gnet/m3gnet.yml", None, "M3GNet"
+    # m3gnet = "m3gnet/m3gnet.yml", None, "M3GNet"
+   
     # m3gnet_direct = None, "M3GNet DIRECT"
     # m3gnet_ms = None, "M3GNet MS"
 
     # MACE-MP-0 medium as published in https://arxiv.org/abs/2401.00096 trained on MPtrj
-    mace = "mace/mace.yml", None, "MACE"
+    #mace = "mace/mace.yml", None, "MACE"
 
     # original MEGNet straight from publication, not re-trained
-    megnet = "megnet/megnet.yml", None, "MEGNet"
+    #megnet = "megnet/megnet.yml", None, "MEGNet"
 
     # SevenNet trained on MPtrj
     sevennet = "sevennet/sevennet.yml", None, "SevenNet"
 
     # Magpie composition+Voronoi tessellation structure features + sklearn random forest
-    voronoi_rf = "voronoi_rf/voronoi-rf.yml", None, "Voronoi RF"
+    #voronoi_rf = "voronoi_rf/voronoi-rf.yml", None, "Voronoi RF"
 
     # wrenformer 10-member ensemble
-    wrenformer = "wrenformer/wrenformer.yml", None, "Wrenformer"
+    #wrenformer = "wrenformer/wrenformer.yml", None, "Wrenformer"
 
     # --- Proprietary Models
     # GNoME
-    gnome = "gnome/gnome.yml", None, "GNoME"
+    #gnome = "gnome/gnome.yml", None, "GNoME"
 
     # MatterSim
-    mattersim = "mattersim/mattersim.yml", None, "MatterSim"
+    #mattersim = "mattersim/mattersim.yml", None, "MatterSim"
+
+    us = "us/us.yml", None, "Us"
 
     # ORB
     orb = "orb/orb.yml", None, "ORB"
