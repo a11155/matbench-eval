@@ -1,0 +1,258 @@
+import pandas as pd
+import numpy as np
+from scipy import stats
+import matplotlib.pyplot as plt
+from sklearn.metrics import f1_score
+def load_and_prepare_data(prediction_files, ground_truth_file):
+    """
+    Load and prepare data, matching all predictions to model1's materials
+    """
+    # Load ground truth data
+    df_ground_truth = pd.read_csv(ground_truth_file)
+    
+    # Load model1 data first to get reference material IDs
+    df_model1 = pd.read_csv(prediction_files[0][0])
+    reference_materials = set(df_model1['material_id'].tolist())
+    print(f"\nNumber of materials in model1: {len(reference_materials)}")
+    
+    # Create the final DataFrame
+    #final_df = pd.DataFrame({
+    #    'material_id': df_ground_truth['material_id'],
+    #    'ground_truth_energy': df_ground_truth['eqV2-86M-omat-mp-salex_energy'],
+    #    'ground_truth_form_energy': df_ground_truth['e_form_per_atom_eqV2-86M-omat-mp-salex']
+    #})
+    final_df = pd.DataFrame({
+        'material_id': df_ground_truth['material_id'],
+        'ground_truth_energy': df_ground_truth['uncorrected_energy'],
+        'ground_truth_form_energy': df_ground_truth['e_form_per_atom_mp2020_corrected']
+    })
+    
+    # Add each model's data
+    for file_path, model_name, energy_col, form_energy_col in prediction_files:
+        df_model = pd.read_csv(file_path)
+        print(f"Original number of materials in {model_name}: {len(df_model)}")
+        
+        # Filter to reference materials if not model1
+        if model_name != 'Us':
+            df_model = df_model[df_model['material_id'].isin(reference_materials)]
+            print(f"Number of materials in {model_name} after filtering: {len(df_model)}")
+        
+        # Add to final DataFrame
+        temp_df = pd.DataFrame({
+            'material_id': df_model['material_id'],
+            f'{model_name}_energy': df_model[energy_col],
+            f'{model_name}_form_energy': df_model[form_energy_col]
+        })
+        final_df = pd.merge(final_df, temp_df, on='material_id', how='outer')
+    
+    return final_df
+
+def calculate_metrics(df, model_name):
+    """
+    Calculate metrics for a model with validation and outlier handling
+    """
+    mask = pd.notna(df[f'{model_name}_energy']) & pd.notna(df['ground_truth_energy'])
+    df_valid = df[mask].copy()
+
+    if len(df_valid) == 0:
+        print(f"Warning: No valid comparisons found for {model_name}")
+        return None
+
+    # Remove extreme outliers (values beyond reasonable physical bounds)
+    energy_bounds = (-1e6, 1e6)  # Adjust these bounds based on your data
+    form_energy_bounds = (-1e4, 1e4)  # Adjust these bounds based on your data
+
+    
+    energy_mask = (
+        (df_valid[f'{model_name}_energy'].between(*energy_bounds)) & 
+        (df_valid['ground_truth_energy'].between(*energy_bounds))
+    )
+    form_energy_mask = (
+        (df_valid[f'{model_name}_form_energy'].between(*form_energy_bounds)) & 
+        (df_valid['ground_truth_form_energy'].between(*form_energy_bounds))
+    )
+
+    # Print warnings for removed outliers
+    n_energy_outliers = (~energy_mask).sum()
+    n_form_energy_outliers = (~form_energy_mask).sum()
+    if n_energy_outliers > 0:
+        print(f"Warning: Removed {n_energy_outliers} energy outliers for {model_name}")
+    if n_form_energy_outliers > 0:
+        print(f"Warning: Removed {n_form_energy_outliers} formation energy outliers for {model_name}")
+
+    # Calculate differences using cleaned data
+    energy_diff = df_valid[energy_mask][f'{model_name}_energy'] - df_valid[energy_mask]['ground_truth_energy']
+    form_energy_diff = df_valid[form_energy_mask][f'{model_name}_form_energy'] - df_valid[form_energy_mask]['ground_truth_form_energy']
+
+    # Calculate metrics with error handling
+    try:
+        metrics = {
+            'model': model_name,
+            'n_materials': len(df_valid),
+            'n_valid_energy': energy_mask.sum(),
+            'n_valid_form_energy': form_energy_mask.sum(),
+            'energy_mae': float(np.abs(energy_diff).mean()),
+            'energy_rmse': float(np.sqrt((energy_diff ** 2).mean())),
+            'form_energy_mae': float(np.abs(form_energy_diff).mean()),
+            'form_energy_rmse': float(np.sqrt((form_energy_diff ** 2).mean())),
+            'energy_correlation': float(stats.pearsonr(
+                df_valid[energy_mask]['ground_truth_energy'],
+                df_valid[energy_mask][f'{model_name}_energy']
+            )[0]),
+            'form_energy_correlation': float(stats.pearsonr(
+                df_valid[form_energy_mask]['ground_truth_form_energy'],
+                df_valid[form_energy_mask][f'{model_name}_form_energy']
+            )[0])
+        }
+    except Exception as e:
+        print(f"Error calculating metrics for {model_name}: {str(e)}")
+        return None
+
+    return metrics
+def calculate_metrics1(df, model_name):
+    """
+    Calculate metrics for a model
+    """
+    mask = pd.notna(df[f'{model_name}_energy']) & pd.notna(df['ground_truth_energy'])
+    df_valid = df[mask]
+    
+    if len(df_valid) == 0:
+        print(f"Warning: No valid comparisons found for {model_name}")
+        return None
+    
+    # Calculate metrics
+    energy_diff = df_valid[f'{model_name}_energy'] - df_valid['ground_truth_energy']
+    form_energy_diff = df_valid[f'{model_name}_form_energy'] - df_valid['ground_truth_form_energy']
+    
+
+    metrics = {
+        'model': model_name,
+        'n_materials': len(df_valid),
+        'energy_mae': np.abs(energy_diff).mean(),
+        'energy_rmse': np.sqrt((energy_diff ** 2).mean()),
+        'form_energy_mae': np.abs(form_energy_diff).mean(),
+        'form_energy_rmse': np.sqrt((form_energy_diff ** 2).mean()),
+        'energy_correlation': stats.pearsonr(df_valid['ground_truth_energy'], 
+                                           df_valid[f'{model_name}_energy'])[0],
+        'form_energy_correlation': stats.pearsonr(df_valid['ground_truth_form_energy'], 
+                                                df_valid[f'{model_name}_form_energy'])[0]
+    }
+    
+    return metrics
+
+def plot_comparisons(df, model_names):
+    """
+    Create comparison plots
+    """
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+    
+    colors = ['blue', 'red', 'green', 'purple']
+    markers = ['o', 's', '^', 'o']
+    
+    # Energy comparison plots
+    for idx, model_name in enumerate(model_names):
+        mask = pd.notna(df[f'{model_name}_energy']) & pd.notna(df['ground_truth_energy'])
+        df_valid = df[mask]
+        
+        ax1.scatter(
+            df_valid['ground_truth_energy'],
+            df_valid[f'{model_name}_energy'],
+            color=colors[idx],
+            marker=markers[idx],
+            alpha=0.6,
+            s=20,  # smaller points for better visibility
+            label=f'{model_name} (n={len(df_valid)})'
+        )
+    
+    # Add diagonal line for energy plot
+    energy_min = df['ground_truth_energy'].min()
+    energy_max = df['ground_truth_energy'].max()
+    ax1.plot([energy_min, energy_max], [energy_min, energy_max], 'k--')
+    ax1.set_xlabel('Ground Truth Energy')
+    ax1.set_ylabel('Predicted Energy')
+    ax1.set_title('Energy Comparison')
+    ax1.legend()
+    
+    # Formation energy comparison plots
+    for idx, model_name in enumerate(model_names):
+        mask = pd.notna(df[f'{model_name}_form_energy']) & pd.notna(df['ground_truth_form_energy'])
+        df_valid = df[mask]
+        
+        
+        ax2.scatter(
+            df_valid['ground_truth_form_energy'],
+            df_valid[f'{model_name}_form_energy'],
+            color=colors[idx],
+            marker=markers[idx],
+            alpha=0.6,
+            s=20,  # smaller points for better visibility
+            label=f'{model_name} (n={len(df_valid)})'
+        )
+    
+    # Add diagonal line for formation energy plot
+    form_min = df['ground_truth_form_energy'].min()
+    form_max = df['ground_truth_form_energy'].max()
+    ax2.plot([form_min, form_max], [form_min, form_max], 'k--')
+    ax2.set_xlabel('Ground Truth Formation Energy per Atom')
+    ax2.set_ylabel('Predicted Formation Energy per Atom')
+    ax2.set_title('Formation Energy Comparison')
+    ax2.legend()
+    
+    plt.tight_layout()
+    plt.savefig('energy_comparisons.png', dpi=300, bbox_inches='tight')
+    plt.close()
+
+def main():
+    # File paths and model names with column information
+    prediction_files = [
+        ('results-merged_output.csv.gz', 'Us', 'sevennet_energy', 'e_form_per_atom_sevennet'),
+        ('2024-07-11-sevennet-0-preds.csv.gz', 'SevenNet', 'sevennet_energy', 'e_form_per_atom_sevennet'),
+        ('orbff-mptrj-only-v2-20241014.csv.gz', 'Orb', 'orb_energy', 'e_form_per_atom_orb'),
+    ('2023-12-11-mace-wbm-IS2RE-FIRE.csv.gz', 'MACE', 'mace_energy','e_form_per_atom_mace')
+    ]
+    #ground_truth_file = 'eqV2-m-omat-mp-salex.csv.gz'
+    ground_truth_file = "wbm.csv.gz"
+    # Load and prepare data
+    merged_df = load_and_prepare_data(prediction_files, ground_truth_file)
+    
+    # Calculate metrics for each model
+    all_metrics = []
+    model_names = [model_name for _, model_name, _, _ in prediction_files]
+    for model_name in model_names:
+        metrics = calculate_metrics(merged_df, model_name)
+        if metrics is not None:
+            all_metrics.append(metrics)
+    
+    if all_metrics:
+        # Create comparison DataFrame
+        metrics_df = pd.DataFrame(all_metrics)
+        
+        # Print results
+        print("\nAnalysis Results:")
+        print("-" * 80)
+        for model_name in model_names:
+            model_metrics = metrics_df[metrics_df['model'] == model_name]
+            if not model_metrics.empty:
+                model_metrics = model_metrics.iloc[0]
+                print(f"\nModel: {model_name}")
+                print(f"Number of materials compared: {model_metrics['n_materials']}")
+                
+                print("\nEnergy Metrics:")
+                print(f"MAE: {model_metrics['energy_mae']:.4f}")
+                print(f"RMSE: {model_metrics['energy_rmse']:.4f}")
+                print(f"Correlation: {model_metrics['energy_correlation']:.4f}")
+                
+                print("\nFormation Energy per Atom Metrics:")
+                print(f"MAE: {model_metrics['form_energy_mae']:.4f}")
+                print(f"RMSE: {model_metrics['form_energy_rmse']:.4f}")
+                print(f"Correlation: {model_metrics['form_energy_correlation']:.4f}")
+        
+        # Create plots
+        plot_comparisons(merged_df, model_names)
+        
+        # Save detailed results
+        merged_df.to_csv('detailed_comparison.csv', index=False)
+        metrics_df.to_csv('model_metrics.csv', index=False)
+
+if __name__ == "__main__":
+    main()
