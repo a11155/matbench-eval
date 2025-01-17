@@ -112,7 +112,7 @@ metrics:
     pred_file_url: https://figshare.com/ndownloader/files/51607313
     pred_col: e_form_per_atom_eqV2-31M-dens-MP-p5
     full_test_set:
-      F1: 0.798 # fraction
+      F1: 0.798  # fraction
       DAF: 4.362 # dimensionless
       Precision: 0.748 # fraction
       Recall: 0.855 # fraction
@@ -131,7 +131,7 @@ metrics:
       missing_preds: 351 # count
       missing_percent: 0.14% # fraction
     most_stable_10k:
-      F1: 0.983 # fraction
+      F1: 0.983  # fraction
       DAF: 6.326 # dimensionless
       Precision: 0.967 # fraction
       Recall: 1.0 # fraction
@@ -150,7 +150,7 @@ metrics:
       missing_preds: 0 # count
       missing_percent: 0.00% # fraction
     unique_prototypes:
-      F1: 0.815 # fraction
+      F1: 0.815  # fraction
       DAF: 5.042 # dimensionless
       Precision: 0.771 # fraction
       Recall: 0.864 # fraction

@@ -75,7 +75,7 @@ metrics:
     pred_file_url: https://figshare.com/ndownloader/files/51607319
     pred_col: e_form_per_atom_grace
     full_test_set:
-      F1: 0.687 # fraction
+      F1: 0.687  # fraction
       DAF: 3.714 # dimensionless
       Precision: 0.637 # fraction
       Recall: 0.746 # fraction
@@ -94,7 +94,7 @@ metrics:
       missing_preds: 128 # count
       missing_percent: 0.05% # fraction
     most_stable_10k:
-      F1: 0.914 # fraction
+      F1: 0.914  # fraction
       DAF: 5.503 # dimensionless
       Precision: 0.841 # fraction
       Recall: 1.0 # fraction
@@ -113,7 +113,7 @@ metrics:
       missing_preds: 0 # count
       missing_percent: 0.00% # fraction
     unique_prototypes:
-      F1: 0.691 # fraction
+      F1: 0.691  # fraction
       DAF: 4.163 # dimensionless
       Precision: 0.636 # fraction
       Recall: 0.757 # fraction

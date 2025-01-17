@@ -28,7 +28,7 @@ if test_subset == TestSubset.uniq_protos:
 
 
 # %%
-metrics: tuple[str, ...] = globals().get("metrics", ("Precision", "Recall"))
+metrics: tuple[str, ...] = globals().get("metrics", ("Precision", "Recall", "MAE"))
 # metrics = ("MAE",)
 range_y = {
     ("MAE",): (0, 0.7),
@@ -80,11 +80,14 @@ if len(metrics) * len(models_to_plot) * (2 if endpoint_markers else 1) != len(fi
         f"{len(metrics) * len(models_to_plot)} traces, got {len(fig.data)}"
     )
 
-fig.show()
+#fig.show()
 
 
-# %%
+# %%/
+print("trying", SITE_FIGS)
 img_suffix = "" if show_non_compliant else "-only-compliant"
 img_name = f"cumulative-{'-'.join(metrics).lower()}{img_suffix}"
-pmv.save_fig(fig, f"{SITE_FIGS}/{img_name}.svelte")
-pmv.save_fig(fig, f"{PDF_FIGS}/{img_name}.pdf")
+pmv.save_fig(fig, f"{SITE_FIGS}/{img_name}1.svelte")
+pmv.save_fig(fig, f"{PDF_FIGS}/{img_name}1.pdf")
+pmv.save_fig(fig, f"./{img_name}.pdf")
+

@@ -20,7 +20,7 @@ __date__ = "2022-06-18"
 
 
 # %%
-model_name = Model.mace.label
+model_name = Model.us.label
 which_energy: Final = "pred"
 df_each_pred[MbdKey.each_true] = df_wbm[MbdKey.each_true]
 
@@ -43,3 +43,4 @@ fig.show()
 img_name = f"hist-clf-{which_energy}-hull-dist-{model_name}"
 # pmv.save_fig(fig, f"{FIGS}/{img_name}.svelte")
 pmv.save_fig(fig, f"{PDF_FIGS}/{img_name}.pdf")
+pmv.save_fig(fig, f"./{img_name}.pdf")

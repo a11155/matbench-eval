@@ -373,25 +373,19 @@ class Model(Files, base_dir=f"{ROOT}/models"):
     See https://janosh.github.io/matbench-discovery/contribute for data descriptions.
     """
 
-    alignn = "alignn/alignn.yml"
     # alignn_pretrained = "alignn/alignn.yml"
     # alignn_ff = "alignn/alignn-ff.yml"
 
     # BOWSR optimizer coupled with original megnet
-    bowsr_megnet = "bowsr/bowsr.yml"
 
     # default CHGNet model from publication with 400,438 params
-    chgnet = "chgnet/chgnet.yml"
     # chgnet_no_relax = None, "CHGNet No Relax"
 
     # CGCNN 10-member ensemble
-    cgcnn = "cgcnn/cgcnn.yml"
 
     # CGCNN 10-member ensemble with 5-fold training set perturbations
-    cgcnn_p = "cgcnn/cgcnn+p.yml"
 
     # original M3GNet straight from publication, not re-trained
-    m3gnet = "m3gnet/m3gnet.yml"
     # m3gnet_direct = None, "M3GNet DIRECT"
     # m3gnet_ms = None, "M3GNet MS"
 
@@ -400,24 +394,19 @@ class Model(Files, base_dir=f"{ROOT}/models"):
     mace_mpa_0 = "mace/mace-mpa-0.yml"  # trained on MPtrj and Alexandria
 
     # original MEGNet straight from publication, not re-trained
-    megnet = "megnet/megnet.yml"
 
     # SevenNet trained on MPtrj
     sevennet_0 = "sevennet/sevennet-0.yml"
     sevennet_l3i5 = "sevennet/sevennet-l3i5.yml"
 
     # Magpie composition+Voronoi tessellation structure features + sklearn random forest
-    voronoi_rf = "voronoi_rf/voronoi-rf.yml"
 
     # wrenformer 10-member ensemble
-    wrenformer = "wrenformer/wrenformer.yml"
 
     # --- Proprietary Models
     # GNoME
-    gnome = "gnome/gnome.yml"
 
     # MatterSim
-    mattersim = "mattersim/mattersim-v1.yml"
 
     # ORB
     orb = "orb/orb.yml"
@@ -428,6 +417,7 @@ class Model(Files, base_dir=f"{ROOT}/models"):
     eqv2_m = "eqV2/eqV2-m-omat-mp-salex.yml"
 
     grace2l_r6 = "grace2l_r6/grace2l-r6.yml"
+    us = "us/us.yml"
 
     # --- Model Combos
     # # CHGNet-relaxed structures fed into MEGNet for formation energy prediction

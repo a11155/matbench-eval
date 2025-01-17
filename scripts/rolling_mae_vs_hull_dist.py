@@ -15,7 +15,7 @@ __date__ = "2022-06-18"
 
 
 # %%
-model = Model.chgnet.label
+model = Model.us.label
 
 fig, df_err, df_std = rolling_mae_vs_hull_dist(
     e_above_hull_true=df_wbm[MbdKey.each_true],
@@ -31,4 +31,5 @@ fig.show()
 # %%
 img_name = f"rolling-mae-vs-hull-dist-{model}"
 pmv.save_fig(fig, f"{PDF_FIGS}/{img_name}.pdf")
+pmv.save_fig(fig, f"./{img_name}.pdf")
 pmv.save_fig(fig, f"{SITE_FIGS}/{img_name}.svelte")

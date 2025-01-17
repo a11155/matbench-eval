@@ -93,7 +93,7 @@ metrics:
     pred_file_url: https://figshare.com/ndownloader/files/51607283
     pred_col: e_form_per_atom_mace
     full_test_set:
-      F1: 0.836 # fraction
+      F1: 0.836  # fraction
       DAF: 4.869 # dimensionless
       Precision: 0.836 # fraction
       Recall: 0.836 # fraction
@@ -112,7 +112,7 @@ metrics:
       missing_preds: 4 # count
       missing_percent: 0.00% # fraction
     most_stable_10k:
-      F1: 0.978 # fraction
+      F1: 0.978  # fraction
       DAF: 6.258 # dimensionless
       Precision: 0.957 # fraction
       Recall: 1.0 # fraction
@@ -131,7 +131,7 @@ metrics:
       missing_preds: 0 # count
       missing_percent: 0.00% # fraction
     unique_prototypes:
-      F1: 0.852 # fraction
+      F1: 0.852  # fraction
       DAF: 5.582 # dimensionless
       Precision: 0.853 # fraction
       Recall: 0.851 # fraction

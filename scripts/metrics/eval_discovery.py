@@ -55,8 +55,9 @@ if __name__ == "__main__":
     for model in models_to_write:
         disc_metrics.write_discovery_metrics_to_yaml(model, *metric_dfs)
 
-    if not IS_IPYTHON:
-        raise SystemExit(0)
+    print('done')
+    #if not IS_IPYTHON:
+        #raise SystemExit(0)
 
 
 # %% Create discovery metrics dataframes from MODEL_METADATA
@@ -267,6 +268,8 @@ for model in df_metrics_uniq_protos.index:
         exc.add_note(f"{model=} with {model_metadata=}")
         raise
 
+print("doing this")
+
 # assign this col to all tables
 for df in (df_metrics, df_metrics_10k, df_metrics_uniq_protos):
     df[model_name_col] = df_metrics_uniq_protos[model_name_col]
@@ -304,6 +307,8 @@ for df_in, df_out, col in (
 
 
 # %%
+
+print("loading")
 with open(f"{PKG_DIR}/modeling-tasks.yml") as file:
     discovery_metrics = yaml.safe_load(file)["discovery"]["metrics"]
 
@@ -350,6 +355,7 @@ for (label, df_met), show_non_compliant in itertools.product(
     )
     # only keep columns we want to show
     df_table = df_met.filter([model_name_col, *show_cols])
+    print(df_table)
     # hide models that are not compliant if show_non_compliant is False
     if not show_non_compliant:
         df_table = df_table.drop(non_compliant_models)
@@ -447,6 +453,7 @@ for (label, df_met), show_non_compliant in itertools.product(
     display(styler.set_caption(df_met.attrs["title"]))
 
 
+print("done")
 try:
     # convert PDFs in site/static/figs to SVGs (needed for "download as SVG" button)
     for pdf_path in glob(f"{ROOT}/site/static/figs/metrics-table*.pdf"):
