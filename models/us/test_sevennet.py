@@ -28,13 +28,21 @@ __author__ = "Yutack Park"
 __date__ = "2024-06-25"
 
 
+import argparse
+
+parser = argparse.ArgumentParser(description='Run calculations with GPU and data bounds selection')
+parser.add_argument('--gpu', type=str, required=True, help='GPU device number')
+parser.add_argument('--left', type=int, required=True, help='Left bound for data selection')
+parser.add_argument('--right', type=int, required=True, help='Right bound for data selection. Use -1 for no bound')
+args = parser.parse_args()
+
 # %% this config is editable
 smoke_test = True 
-model_name = "./checkpoint_600.pth"
+model_name = "/data/andrii/new_matbench/matbench-discovery/models/us/lmax3-epoch=178-val=0.001.ckpt"
 task_type = Task.IS2RE
 job_name = f"{model_name}-wbm-{task_type}"
 ase_optimizer = "FIRE"
-os.environ["CUDA_VISIBLE_DEVICES"] = "6"
+os.environ["CUDA_VISIBLE_DEVICES"] = f"{args.gpu}"
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print(device)
 ase_filter: Literal["frechet", "exp"] = "frechet"
@@ -49,13 +57,13 @@ slurm_array_task_count = 32
 slurm_array_task_id = int(os.getenv("SLURM_ARRAY_TASK_ID", "0"))
 slurm_array_job_id = os.getenv("SLURM_ARRAY_JOB_ID", "debug")
 
-times = 9
-left = 25000 * times
-right = 25000 * (times+ 1)
+times = 0
+left = args.left
+right = args.right if args.right != -1 else None
 print(left, right)
 
 os.makedirs(out_dir := "./results", exist_ok=True)
-out_path = f"{out_dir}/{model_name}-test_150000_175000.json.gz"
+out_path = f"{out_dir}/lmax3_test{left}_{right}.json.gz"
 
 data_path = {Task.IS2RE: DataFiles.wbm_initial_atoms.path}[task_type]
 print(f"\nJob {job_name!r} running {timestamp}", flush=True)
@@ -67,12 +75,12 @@ seven_net_calc = SevenNetCalculator(model=model_name)
 
 # %%
 print(f"Read data from {data_path}")
-zip_filename = f"./2024-08-04-wbm-initial-atoms.extxyz.zip"
+zip_filename = "/data/andrii/new_matbench/matbench-discovery/data/wbm/2024-08-04-wbm-initial-atoms.extxyz.zip"
 atoms_list = ase_atoms_from_zip(zip_filename)
 
 if slurm_array_job_id == "debug":
     #if smoke_test:
-    atoms_list = atoms_list[150000:175000]
+    atoms_list = atoms_list[left:right]
     #else:
      #   pass
 elif slurm_array_task_count > 1:
@@ -91,11 +99,13 @@ optim_cls: Callable[..., Optimizer] = {"FIRE": FIRE, "LBFGS": LBFGS}[ase_optimiz
 
 # %%
 for atoms in tqdm(atoms_list, desc="Relaxing"):
+    atoms.calc = seven_net_calc
+
     mat_id = atoms.info[Key.mat_id]
     if mat_id in relax_results:
         continue
     try:
-        atoms.calc = seven_net_calc
+        
         if max_steps > 0:
             atoms = filter_cls(atoms)
             optimizer = optim_cls(atoms, logfile="/dev/null")
